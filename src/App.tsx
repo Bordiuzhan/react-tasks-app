@@ -9,25 +9,14 @@ interface ITask {
 
 function App(): JSX.Element {
   const [newTask, setNewTask] = useState<string>('');
-  const [tasks, setTasks] = useState<ITask[]>([]);
+  const [tasks, setTasks] = useState<ITask[]>(
+    JSON.parse(localStorage.getItem('tasks') || '[]')
+  );
   const taskInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const storedTasks: ITask[] | null = JSON.parse(
-      localStorage.getItem('tasks') || 'null'
-    );
-    console.log(storedTasks);
-
-    if (storedTasks) {
-      setTasks(storedTasks);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (tasks.length === 0) {
-      return;
-    }
     localStorage.setItem('tasks', JSON.stringify(tasks));
+    console.log(tasks, 'Tasks changed');
   }, [tasks]);
 
   const addTask = useCallback(

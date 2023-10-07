@@ -16,7 +16,6 @@ function App(): JSX.Element {
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
-    console.log(tasks, 'Tasks changed');
   }, [tasks]);
 
   const addTask = useCallback(

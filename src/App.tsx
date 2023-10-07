@@ -14,6 +14,8 @@ function App(): JSX.Element {
   );
   const taskInput = useRef<HTMLInputElement>(null);
 
+  console.log(tasks);
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -61,6 +63,7 @@ function App(): JSX.Element {
 
   return (
     <div className="container p-4">
+      <h1 className="d-flex justify-content-center">TO DO...</h1>
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="card">

@@ -1,4 +1,6 @@
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ITask {
   name: string;
@@ -8,32 +10,66 @@ interface ITask {
 function App(): JSX.Element {
   const [newTask, setNewTask] = useState<string>('');
   const [tasks, setTasks] = useState<ITask[]>([]);
-  const taskInput=useRef<HTMLInputElement>(null)
+  const taskInput = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    const storedTasks: ITask[] | null = JSON.parse(
+      localStorage.getItem('tasks') || 'null'
+    );
+    console.log(storedTasks);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    addTask(newTask);
-    setNewTask('');
-    taskInput.current?.focus()
-  };
+    if (storedTasks) {
+      setTasks(storedTasks);
+    }
+  }, []);
 
-  const addTask = (name: string): void => {
-    const newTasks: ITask[] = [...tasks, { name, done: false }];
-    setTasks(newTasks);
-  };
+  useEffect(() => {
+    if (tasks.length === 0) {
+      return;
+    }
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
-  const toggleDoneTask = (i: number): void => {
-    const newTasks: ITask[] = [...tasks];
-    newTasks[i].done = !newTasks[i].done;
-    setTasks(newTasks);
-  };
+  const addTask = useCallback(
+    (name: string): void => {
+      const newTasks: ITask[] = [...tasks, { name, done: false }];
+      setTasks(newTasks);
+      toast.success('Task added successfully');
+    },
+    [tasks]
+  );
 
-  const removeTask = (i: number): void => {
-    const newTasks: ITask[] = [...tasks];
-    newTasks.splice(i,1);
-    setTasks(newTasks) 
-  };
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!newTask.trim()) return toast.error('Please write a task');
+      addTask(newTask);
+      setNewTask('');
+      taskInput.current?.focus();
+    },
+    [addTask, newTask]
+  );
+
+  const toggleDoneTask = useCallback(
+    (i: number): void => {
+      const newTasks: ITask[] = [...tasks];
+      newTasks[i].done = !newTasks[i].done;
+      setTasks(newTasks);
+      if (newTasks[i].done) toast.success('Task completed');
+      else toast.warning('Task uncompleted');
+    },
+    [tasks]
+  );
+
+  const removeTask = useCallback(
+    (i: number): void => {
+      const newTasks: ITask[] = [...tasks];
+      newTasks.splice(i, 1);
+      setTasks(newTasks);
+      toast.success('Task removed successfully');
+    },
+    [tasks]
+  );
 
   return (
     <div className="container p-4">
@@ -79,6 +115,7 @@ function App(): JSX.Element {
           })}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
